@@ -48,6 +48,47 @@ pipeline {
                 }
             }
         }
+        stage('Download JAR from Nexus') {
+            steps {
+                script {
+                    echo "Downloading JAR from Nexus"
+                    withCredentials([usernamePassword(credentialsId: 'nexus-credential', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
+                        sh "wget --user=$NEXUS_USER --password=$NEXUS_PASSWORD -O ${JAR_FILE} ${NEXUS_URL}"
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image using the Dockerfile
+                    sh "docker build -t medzrig/kaddem:latest ."
+                }
+            }
+        }
+        stage('Push Docker Image to DockerHub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        // Login to DockerHub
+                        sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
+
+                        // Push the image to DockerHub
+                        sh "docker push medzrig/kaddem:latest"
+                    }
+                }
+            }
+        }
+        stage('Docker Compose') {
+            steps {
+                script {
+                    echo "Running Docker Compose"
+                    sh 'docker compose up -d'
+                    sh 'docker compose down'
+                }
+            }
+        }
     }
 
     post {
