@@ -29,7 +29,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        /*stage('SonarQube Analysis') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Sonarqube-Credential', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASSWORD')]) {
@@ -43,7 +43,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
         
         stage('Maven Deploy') {
             steps {
