@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    environment {
+        NEXUS_URL = 'http://localhost:8081/repository/maven-releases/tn/esprit/kaddem/0.0.2/kaddem-0.0.2.jar' // The Nexus URL for the JAR file
+        JAR_FILE = 'kaddem-0.0.2.jar' // The name of the JAR file to download
+    }
 
     stages {
         stage('Checkout Code') {
