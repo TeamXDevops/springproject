@@ -6,7 +6,7 @@ pipeline {
             steps {
                 script {
                     def repoUrl = 'https://github.com/TeamXDevops/springproject.git'
-                    def branch = 'mohamedzrig'
+                    def branch = 'zrig'
                     withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
                         checkout([$class: 'GitSCM',
                             branches: [[name: "*/${branch}"]],

@@ -52,7 +52,11 @@
         <repository>
             <id>deploymentRepo</id>
             <name>Nexus Repository</name>
+<<<<<<< HEAD
             <url>http://192.168.33.10:8081/repository/maven-releases/</url> <!-- Removed duplicate http:// -->
+=======
+            <url>http://192.168.33.10:8081/repository/maven-releases/</url>
+>>>>>>> origin/zrig
         </repository>
     </distributionManagement>
 
