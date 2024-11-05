@@ -57,11 +57,13 @@ pipeline {
                 script {
                     echo "Downloading JAR from Nexus"
                     withCredentials([usernamePassword(credentialsId: 'nexus-credential', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
-                        sh "wget --user=$NEXUS_USER --password=$NEXUS_PASSWORD -O ${JAR_FILE} ${NEXUS_URL}"
+                        sh '''
+                            wget --user=$NEXUS_USER --password=$NEXUS_PASSWORD -O ${JAR_FILE} ${NEXUS_URL}
+                        '''
                     }
-                }
             }
-        }
+    }
+}
 
         stage('Build Docker Image') {
             steps {
