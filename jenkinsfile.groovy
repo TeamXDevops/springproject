@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        NEXUS_URL = 'http://192.168.33.10:8081/repository/maven-releases/tn/esprit/kaddem/0.0.2/kaddem-0.0.2.jar' // The Nexus URL for the JAR file
+        NEXUS_URL = 'http://192.168.33.10:8081/repository/maven-releases/tn/esprit/spring/kaddem/0.0.2/kaddem-0.0.2.jar' // The Nexus URL for the JAR file
         JAR_FILE = 'kaddem-0.0.2.jar' // The name of the JAR file to download
     }
 
@@ -21,7 +21,7 @@ pipeline {
             }
         }
 
-       /*stage('Maven Clean and Package') { // Consider renaming to 'Package' if applicable
+       stage('Maven Clean and Package') { // Consider renaming to 'Package' if applicable
             steps {
                 script {
                     sh 'mvn clean package' // Use 'package' if you want to create a deployable artifact
@@ -43,7 +43,7 @@ pipeline {
                     }
                 }
             }
-        }*/
+        }
         
         stage('Maven Deploy') {
             steps {
