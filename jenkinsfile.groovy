@@ -92,7 +92,7 @@ pipeline {
                 script {
                     echo "Running Docker Compose"
                     sh 'docker compose up -d'
-                    sh 'docker compose down'
+                    //sh 'docker compose down'
                 }
             }
         }
