@@ -1,14 +1,13 @@
-# Use a base image with Java installed
-FROM openjdk:11-jre-slim
+# Utilisation de l'image OpenJDK 17 comme base
+FROM openjdk:17-jdk-alpine
 
-# Set the working directory in the container
-WORKDIR /app
+# Ajouter un argument pour le fichier JAR
+ARG JAR_FILE=target/*.jar
 
-# Copy the jar file into the container
-COPY target/springproject.jar /app/springproject.jar
+# Copier le fichier JAR dans le conteneur
+COPY ${JAR_FILE} app.jar
 
-# Expose the port that the application will run on
-EXPOSE 8080
+EXPOSE 8089
 
-# Define the command to run the application
-CMD ["java", "-jar", "springproject.jar"]
+# Lancer l'application Java Spring Boot
+ENTRYPOINT ["java","-jar","/app.jar"]
