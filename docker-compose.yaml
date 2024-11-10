@@ -1,36 +1,35 @@
-version: '3.8'
-
+version: '3'
 services:
-  mysql:
-    image: mysql:8.0
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD:
-      MYSQL_DATABASE: db            # Use 'db' as the database name, as configured in your application.properties
+  mysql-db:
+    image: mysql:latest
+    container_name: docker-compose-mysql-db
     ports:
       - "3306:3306"
-    volumes:
-      - sql_db:/var/lib/mysql   # Persistent volume for MySQL data
-
-  backend:
-    image: medzrig/kaddem:latest  # Replace with your built Spring Boot Docker image
-    restart: on-failure
-    depends_on:
-      - mysql
-    ports:
-      - "8089:8089"                 # Matches the server.port in application.properties
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/kaddem\db?&createDatabaseIfNotExist=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 0000
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_SHOW_SQL: true
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL5InnoDBDialect
-      SERVER_PORT: 8089
-      SERVER_SERVLET_CONTEXT_PATH: /kaddem
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=db
+    networks:
+      - my-network
     volumes:
-      - spring_logs:/app/logs      # Optional volume for backend logs
+      - db:/var/lib/mysql
+
+  spring-boot-app:
+    image: medzrig/kaddem:latest # Utilisation de la variable d'environnement IMAGE_TAG  ${IMAGE_TAG}
+    container_name: app-back
+    ports:
+      - "8089:8089"
+    depends_on:
+      - mysql-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://docker-compose-mysql-db:3306/db?&createDatabaseIfNotExist=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=0000
+    networks:
+      - my-network
+    restart: always
+
+networks:
+  my-network:
 
 volumes:
-  sql_db:
-  spring_logs:
+  db:
