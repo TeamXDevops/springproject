@@ -2,16 +2,16 @@ services:
   mysql:
     image: mysql:5.7
     environment:
-      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ROOT_PASSWORD: ""   # Set a strong password here
       MYSQL_USER: root
-      MYSQL_PASSWORD: ""
+      MYSQL_PASSWORD: ""        # Set a strong password here
     ports:
       - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
 
-  gestion-station-ski-backend:
-    image: firas/kaddem-backend:latest
+  springproject-backend:
+    image: firashachicha/springproject:latest
     ports:
       - "8089:8089"
     depends_on:

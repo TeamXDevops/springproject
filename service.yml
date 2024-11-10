@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: springproject-service
+spec:
+  selector:
+    app: springproject
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 3001  # Adjusted to match containerPort in the deployment
+      nodePort: 31110
+

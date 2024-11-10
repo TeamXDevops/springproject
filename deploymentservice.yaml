@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springproject-deployment
+  labels:
+    app: springproject
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springproject
+  template:
+    metadata:
+      labels:
+        app: springproject
+    spec:
+      serviceAccountName: springproject
+      automountServiceAccountToken: false
+      containers:
+        - name: TomcatServer
+          image: firashachicha/springproject:latest
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 3001
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springproject-service
+spec:
+  selector:
+    app: springproject
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3001
+

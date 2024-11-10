@@ -1,0 +1,115 @@
+pipeline {
+    agent any 
+
+    environment {
+        dockerimagename="firashachicha/springproject:latest"
+
+        SONARQUBE_URL = 'http://192.168.33.10:9000' 
+        NEXUS_URL = 'http://192.168.33.10:8081/repository/maven-releases/'
+        NEXUS_CREDENTIALS_ID = 'nexus-credentials' // Jenkins credential ID for Nexus
+        SONARQUBE_TOKEN = credentials('sonar')  // Use the ID of the stored credentials
+
+    }
+
+    stages {
+        
+         stage('Clean Workspace') {
+            steps {
+                script {
+                    deleteDir() 
+                }
+            }
+        } 
+        
+        stage('Checkout GIT') {
+            steps {
+                echo 'Pulling from Git'
+                git branch: 'firas', credentialsId: 'github', url: 'https://github.com/TeamXDevops/springproject.git'
+            }
+        }
+
+        stage('Maven Clean') {
+            steps {
+                echo 'Running Maven Clean'
+                sh 'mvn clean'
+            }
+        }
+
+        stage('Maven Compile') {
+            steps {
+                echo 'Running Maven Compile'
+                sh 'mvn compile'
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            environment {
+                SONAR_HOST_URL = "${SONARQUBE_URL}"              // SonarQube URL
+                SONAR_AUTH_TOKEN = credentials('sonarqube')     // Retrieve the SonarQube authentication token
+            }
+            steps {
+                echo 'SonarQube Analysis'
+
+                       // 'SonarQube' should match the configured SonarQube server name in Jenkins
+                    /*sh '''
+                     mvn sonar:sonar \
+                -Dsonar.projectKey=springproject \
+                -Dsonar.host.url=${SONAR_HOST_URL} \
+                -Dsonar.login=${SONAR_AUTH_TOKEN} \
+                -Dsonar.projectName=SpringProject \
+                -Dsonar.projectVersion=1.0 \
+                -Dsonar.sources=src/main/java \
+                -Dsonar.tests=src/test/java \
+                -Dsonar.java.binaries=target/classes \
+                -Dsonar.junit.reportPaths=target/surefire-reports \
+                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                '''
+                */
+            }
+        }
+        stage('OWASP Dependency-Check Vulnerabilities') {
+            steps {
+                echo 'OWASP Dependency-Check Vulnerabilities'
+
+                //dependencyCheck additionalArguments: '--scan poml.xml --nvdApiKey 2e62f887-67b5-4171-9a56-8e469d697a00', odcInstallation: 'OWASP Dependency-Check Vulnerabilities'
+                //dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+
+        stage('Nexus Deployment') {
+            steps {
+                echo 'Deploying to Nexus Repository'
+                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
+                    sh "mvn deploy -DaltDeploymentRepository=nexus::default::${NEXUS_URL}"
+                }
+            }
+        }
+        stage('Build Docker image'){
+            steps{
+                script{
+                    dockerImage = docker.build(dockerimagename)
+                }
+            }
+        }
+        stage("Trivy") {
+            steps {
+                //sh "trivy image --scanners vuln ${dockerImage.id}"
+                echo 'Trivy Scan'
+          
+                }    
+        }
+        stage('Publish Image to docker hub'){
+            environment{
+                registryCredential='docker-credentials'
+            }
+            steps{
+                script{
+                    docker.withRegistry('https://registry.hub.docker.com', registryCredential){
+                        dockerImage.push("latest")
+                    }
+                }
+            } 
+        }
+    }
+}
+
