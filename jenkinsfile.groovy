@@ -62,6 +62,12 @@ pipeline {
                 }
             }
         }
+        stage("Docker run"){
+            steps{
+                sh 'docker run -d -p 8089:8089 medzrig/kaddem:latest'
+            }
+        }
+
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {

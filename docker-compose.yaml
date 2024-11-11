@@ -1,15 +1,13 @@
-version: '3'
+version: '3.8'
 services:
   mysql-db:
-    image: mysql:latest
+    image: mysql:8.0
     restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       - MYSQL_DATABASE: db
-    networks:
-      - my-network
     volumes:
       - db:/var/lib/mysql
 
@@ -23,8 +21,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD: ""
     volumes:
-      - spring-boot-app:/app/logs
+      - springApp:/app/logs
 
 volumes:
   db:
-  spring-boot-app:
+  springApp:
