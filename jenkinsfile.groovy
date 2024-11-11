@@ -24,7 +24,7 @@ pipeline {
        stage('Maven Clean and Package') { // Consider renaming to 'Package' if applicable
             steps {
                 script {
-                    sh 'mvn clean package' // Use 'package' if you want to create a deployable artifact
+                    sh 'mvn clean test package' // Use 'package' if you want to create a deployable artifact
                 }
             }
         }
