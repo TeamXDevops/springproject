@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  mysql-db:
+  mysqldb:
     image: mysql:8.0
     restart: unless-stopped
     ports:
@@ -9,7 +9,7 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_DATABASE: db
     volumes:
-      - db:/var/lib/mysql
+      - mysql-db:/var/lib/mysql
 
   spring-boot-app:
     image: medzrig/kaddem:latest
@@ -17,12 +17,12 @@ services:
     ports:
       - "8089:8089"
     depends_on:
-      - mysql-db
+      - mysqldb
     environment:
       MYSQL_ROOT_PASSWORD: ""
     volumes:
       - springApp:/app/logs
 
 volumes:
-  db:
+  mysql-db:
   springApp:
