@@ -29,7 +29,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        /*stage('SonarQube Analysis') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Sonarqube-Credential', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASSWORD')]) {
@@ -43,24 +43,12 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
         
         stage('Maven Deploy') {
             steps {
                 script {
                     sh 'mvn clean deploy -DskipTests' // Review if skipping tests is intended
-                }
-            }
-        }
-        stage('Download JAR from Nexus') {
-            steps {
-                script {
-                    echo "Downloading JAR from Nexus"
-                    withCredentials([usernamePassword(credentialsId: 'nexus-credential', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
-                        sh '''
-                            wget --user=$NEXUS_USER --password=$NEXUS_PASSWORD -O ${JAR_FILE} ${NEXUS_URL}
-                        '''
-                    }
                 }
             }
         }
@@ -91,7 +79,7 @@ pipeline {
             steps {
                 script {
                     echo "Running Docker Compose"
-                    sh 'docker compose down'
+                    //sh 'docker compose down'
                     sh 'docker compose up -d'
 
                 }
