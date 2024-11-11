@@ -2,10 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: springproject-deployment
-  labels:
-    app: springproject  # the deployment will have this name
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: springproject
@@ -14,15 +12,8 @@ spec:
       labels:
         app: springproject
     spec:
-      serviceAccountName: springproject
-      automountServiceAccountToken: false  
       containers:
-      - name: springserver
+      - name: springproject
         image: firashachicha/springproject:latest
-        resources:
-          limits:
-            memory: "512Mi"  
-            cpu: "500m"       
         ports:
-        - containerPort: 3001  # Adjusted port for springproject
-
+        - containerPort: 8080
