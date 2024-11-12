@@ -63,18 +63,19 @@ pipeline {
         }
 
         stage('Notify Success') {
-            steps {vagran
+            steps {
                 script {
                     emailext(
                             subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                             body: """<p>Good news!</p>
-                                <p>The build <strong>${env.JOB_NAME} #${env.BUILD_NUMBER}</strong> completed successfully.</p>
-                                <p>Check it out at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                    <p>The build <strong>${env.JOB_NAME} #${env.BUILD_NUMBER}</strong> completed successfully.</p>
+                    <p>Check it out at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
                             to: 'mohamed.zrig@esprit.tn'
                     )
                 }
             }
         }
+
 
         stage('Build Docker Image') {
             steps {
