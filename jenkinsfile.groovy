@@ -21,14 +21,14 @@ pipeline {
             }
         }
 
-        stage('Maven Clean and Package') {
+      /*  stage('Maven Clean and Package') {
             steps {
                 script {
                     sh 'mvn clean test package'
                 }
             }
         }
-
+*/
         stage('Unit Tests') {
             steps {
                 script {
@@ -63,7 +63,7 @@ pipeline {
         }
 
         stage('Notify Success') {
-            steps {
+            steps {vagran
                 script {
                     emailext(
                             subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
