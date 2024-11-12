@@ -21,14 +21,14 @@ pipeline {
             }
         }
 
-      /*  stage('Maven Clean and Package') {
+        stage('Maven Clean and Package') {
             steps {
                 script {
                     sh 'mvn clean test package'
                 }
             }
         }
-*/
+
         stage('Unit Tests') {
             steps {
                 script {
