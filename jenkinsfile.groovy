@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        NEXUS_URL = 'http://192.168.33.10:8081/repository/maven-releases/tn/esprit/spring/kaddem/0.0.2/kaddem-0.0.2.jar' // The Nexus URL for the JAR file
-        JAR_FILE = 'kaddem-0.0.2.jar' // The name of the JAR file to download
+        NEXUS_URL = 'http://192.168.33.10:8081/repository/maven-releases/tn/esprit/spring/kaddem/0.0.2/kaddem-0.0.2.jar'
+        JAR_FILE = 'kaddem-0.0.2.jar'
     }
 
     stages {
@@ -10,32 +10,34 @@ pipeline {
             steps {
                 script {
                     def repoUrl = 'https://github.com/TeamXDevops/springproject.git'
-                    def branch = 'zrig'  // Ensure this branch exists in your repository
+                    def branch = 'zrig'
                     withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
                         checkout([$class: 'GitSCM',
-                            branches: [[name: "*/${branch}"]],
-                            userRemoteConfigs: [[url: "${repoUrl}", credentialsId: 'github-credentials']]
+                                  branches: [[name: "*/${branch}"]],
+                                  userRemoteConfigs: [[url: "${repoUrl}", credentialsId: 'github-credentials']]
                         ])
                     }
                 }
             }
         }
 
-       stage('Maven Clean and Package') { // Consider renaming to 'Package' if applicable
+        stage('Maven Clean and Package') {
             steps {
                 script {
-                    sh 'mvn clean test package' // Use 'package' if you want to create a deployable artifact
+                    sh 'mvn clean test package'
                 }
             }
         }
+
         stage('Unit Tests') {
             steps {
                 script {
-                    echo "Running unit tests "
-                    sh 'mvn test' //
+                    echo "Running unit tests"
+                    sh 'mvn test'
                 }
             }
         }
+
         stage('SonarQube Analysis') {
             steps {
                 script {
@@ -51,26 +53,39 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Maven Deploy') {
             steps {
                 script {
-                    sh 'mvn clean deploy -DskipTests' // Review if skipping tests is intended
+                    sh 'mvn clean deploy -DskipTests'
                 }
             }
         }
 
+        stage('Notify Success') {
+            steps {
+                script {
+                    emailext(
+                            subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                            body: """<p>Good news!</p>
+                                <p>The build <strong>${env.JOB_NAME} #${env.BUILD_NUMBER}</strong> completed successfully.</p>
+                                <p>Check it out at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                            to: 'mohamed.zrig@esprit.tn'
+                    )
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image using the Dockerfile
                     sh "docker build -t medzrig/kaddem:latest ."
                 }
             }
         }
-        stage("Docker run"){
-            steps{
+
+        stage("Docker run") {
+            steps {
                 sh 'docker run -d -p 8089:8089 medzrig/kaddem:latest'
             }
         }
@@ -79,22 +94,18 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        // Login to DockerHub
                         sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
-
-                        // Push the image to DockerHub
                         sh "docker push medzrig/kaddem:latest"
                     }
                 }
             }
         }
+
         stage('Docker Compose') {
             steps {
                 script {
                     echo "Running Docker Compose"
-                    //sh 'docker compose down'
                     sh 'docker compose up -d'
-
                 }
             }
         }
@@ -106,7 +117,6 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed. Check the logs for details.'
-            // You can add additional notifications here
         }
     }
 }
