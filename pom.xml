@@ -46,13 +46,24 @@
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>1.6.9</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+         
+             
     </dependencies>
 
     <distributionManagement>
         <repository>
             <id>deploymentRepo</id>
             <name>Nexus Repository</name>
-            <url>http://http://192.168.50.4:8081//repository/maven-releases/</url>
+            <url>http://http://192.168.33.10:8081/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
