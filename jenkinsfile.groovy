@@ -28,8 +28,15 @@ pipeline {
                 }
             }
         }
-
-        /*stage('SonarQube Analysis') {
+        stage('Unit Tests') {
+            steps {
+                script {
+                    echo "Running unit tests "
+                    sh 'mvn test' //
+                }
+            }
+        }
+        stage('SonarQube Analysis') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Sonarqube-Credential', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASSWORD')]) {
@@ -43,7 +50,7 @@ pipeline {
                     }
                 }
             }
-        }*/
+        }
         
         stage('Maven Deploy') {
             steps {
