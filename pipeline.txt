@@ -3,11 +3,9 @@ pipeline {
 
     environment {
         dockerimagename="firashachicha/springproject:latest"
-
         SONARQUBE_URL = 'http://192.168.33.10:9000' 
         NEXUS_URL = 'http://192.168.33.10:8081/repository/maven-releases/'
         NEXUS_CREDENTIALS_ID = 'nexus-credentials' // Jenkins credential ID for Nexus
-        SONARQUBE_TOKEN = credentials('sonar')  // Use the ID of the stored credentials
 
     }
 
@@ -51,7 +49,7 @@ pipeline {
                 echo 'SonarQube Analysis'
 
                        // 'SonarQube' should match the configured SonarQube server name in Jenkins
-                    /*sh '''
+                    sh '''
                      mvn sonar:sonar \
                 -Dsonar.projectKey=springproject \
                 -Dsonar.host.url=${SONAR_HOST_URL} \
@@ -64,24 +62,25 @@ pipeline {
                 -Dsonar.junit.reportPaths=target/surefire-reports \
                 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                 '''
-                */
+                
             }
         }
+
+
         stage('OWASP Dependency-Check Vulnerabilities') {
             steps {
-                echo 'OWASP Dependency-Check Vulnerabilities'
-
-                //dependencyCheck additionalArguments: '--scan poml.xml --nvdApiKey 2e62f887-67b5-4171-9a56-8e469d697a00', odcInstallation: 'OWASP Dependency-Check Vulnerabilities'
-                //dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                dependencyCheck additionalArguments: '--scan pom.xml --nvdApiKey 3a27b9a5-e7d0-4e1c-8c4e-e3c3b31599c9', odcInstallation: 'OWASP Dependency-Check Vulnerabilities'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
+
 
         stage('Nexus Deployment') {
             steps {
                 echo 'Deploying to Nexus Repository'
-                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
-                    sh "mvn deploy -DaltDeploymentRepository=nexus::default::${NEXUS_URL}"
-                }
+                //withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASS', usernameVariable: 'NEXUS_USER')]) {
+                  //  sh "mvn deploy -DaltDeploymentRepository=nexus::default::${NEXUS_URL}"
+                //}
             }
         }
         stage('Build Docker image'){
@@ -91,13 +90,8 @@ pipeline {
                 }
             }
         }
-        stage("Trivy") {
-            steps {
-                //sh "trivy image --scanners vuln ${dockerImage.id}"
-                echo 'Trivy Scan'
-          
-                }    
-        }
+
+
         stage('Publish Image to docker hub'){
             environment{
                 registryCredential='docker-credentials'
@@ -105,10 +99,39 @@ pipeline {
             steps{
                 script{
                     docker.withRegistry('https://registry.hub.docker.com', registryCredential){
+                        echo 'DockerHub'
+
                         dockerImage.push("latest")
                     }
                 }
             } 
+        }
+        stage('Run Docker Compose') {
+            steps {
+                script {
+                    sh 'docker compose up -d'  // Adjust this if your docker-compose.yml is not in the root directory
+                }
+            }
+        }
+    }  
+ post {
+        success {
+            echo "Build and deployment succeeded!"
+            mail to: 'firas.hachicha2@gmail.com',
+                 subject: "Build ${currentBuild.fullDisplayName} succeeded",
+                 body: "The build was successful!\n\nCheck the details at ${env.BUILD_URL}"
+        }
+        
+        failure {
+            echo "Build or deployment failed."
+            mail to: 'firas.hachicha2@gmail.com',
+                 subject: "Build ${currentBuild.fullDisplayName} failed",
+                 body: "The build failed!\n\nCheck the details at ${env.BUILD_URL}"
+        }
+        
+        always {
+           
+            deleteDir() 
         }
     }
 }
