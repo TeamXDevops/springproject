@@ -38,7 +38,7 @@ pipeline {
             }
         }
 
-      /*  stage('SonarQube Analysis') {
+        stage('SonarQube Analysis') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Sonarqube-Credential', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASSWORD')]) {
@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
-*/
+
         stage('Maven Deploy') {
             steps {
                 script {
@@ -111,13 +111,21 @@ pipeline {
             }
         }
     }
-
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            emailext (
+                    to: 'mohamed.zrig@esprit.tn',
+                    subject: "Jenkins Pipeline Success: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: "The build ${env.JOB_NAME} #${env.BUILD_NUMBER} has succeeded."
+            )
         }
+
         failure {
-            echo 'Pipeline failed. Check the logs for details.'
+            emailext (
+                    to: 'mohamed.zrig@esprit.tn',
+                    subject: "Jenkins Pipeline Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: "The build ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed. Please check the console output for details."
+            )
         }
     }
 }
