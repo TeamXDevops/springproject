@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+      scheme: http
+      timeout: 10s
+      api_version: v1
+
+scrape_configs:
+  # Scrape Prometheus' own metrics
+  - job_name: prometheus
+    honor_timestamps: true
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+          - localhost:9090
+
+  # Scrape metrics from the Spring application
+  - job_name: spring-boot-application
+    honor_timestamps: true
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /kaddem/actuator/prometheus # Spring Actuator 
+    scheme: http
+    static_configs:
+      - targets:
+        - 192.168.132.100:8089 # Container name and port
