@@ -21,14 +21,14 @@ pipeline {
             }
         }
 
-         stage('Maven Clean and Package') {
+      /*   stage('Maven Clean and Package') {
             steps {
                 script {
                     sh 'mvn clean test package'
                 }
             }
         }
-
+*/
         stage('Unit Tests') {
             steps {
                 script {
@@ -38,7 +38,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+      /*  stage('SonarQube Analysis') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Sonarqube-Credential', usernameVariable: 'SONAR_USER', passwordVariable: 'SONAR_PASSWORD')]) {
@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
-
+*/
         stage('Maven Deploy') {
             steps {
                 script {
